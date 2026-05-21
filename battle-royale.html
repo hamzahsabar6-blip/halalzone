@@ -19,9 +19,40 @@
     #crosshair::before { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); }
     #crosshair::after { height: 2px; width: 100%; top: 50%; transform: translateY(-50%); }
     #stats { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 2; }
-    #buildMenu { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
-    .buildBtn { background: rgba(0,0,0,0.7); border: 2px solid #444; color: white; padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; pointer-events: all; transition: all 0.2s; }
-    .buildBtn.active { border-color: #00d4ff; color: #00d4ff; }
+    #buildMenu {
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 50; pointer-events: all;
+}
+.buildBtn {
+  width: 56px; height: 60px;
+  background: rgba(0,0,0,0.72);
+  border: 2px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.6);
+  font-size: 22px;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  transition: all 0.15s;
+  backdrop-filter: blur(6px);
+  position: relative;
+}
+.buildBtn .bLabel {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase; opacity: 0.7;
+}
+.buildBtn .bKey {
+  position: absolute; top: 3px; right: 5px;
+  font-size: 8px; opacity: 0.45; font-weight: bold;
+}
+.buildBtn:hover { border-color: rgba(255,255,255,0.5); color: #fff; transform: translateY(-2px); }
+.buildBtn.active {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  background: rgba(0,212,255,0.15);
+  box-shadow: 0 0 14px rgba(0,212,255,0.5);
+}
+.buildBtn.active .bLabel { opacity: 1; }
     #ammo { position: absolute; bottom: 30px; right: 30px; font-size: 22px; font-weight: bold; }
     #ammo span { font-size: 11px; color: #888; display:block; margin-top:2px; }
     #stormInfo { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; white-space: nowrap; }
@@ -328,11 +359,21 @@
     <div id="stormLabel">⏳ Next circle...</div>
   </div>
   <div id="buildMenu">
-    <button class="buildBtn active" data-mode="shoot">🔫 Shoot</button>
-    <button class="buildBtn" data-mode="wall">🧱 Wall</button>
-    <button class="buildBtn" data-mode="floor">⬛ Floor</button>
-    <button class="buildBtn" data-mode="ramp">📐 Ramp</button>
-    <button class="buildBtn" data-mode="edit">✏️ Edit</button>
+    <button class="buildBtn active" data-mode="shoot" onclick="setBuildMode('shoot')">
+      <span class="bKey">Q</span>🔫<span class="bLabel">Shoot</span>
+    </button>
+    <button class="buildBtn" data-mode="wall" onclick="setBuildMode('wall')">
+      <span class="bKey">2</span>🧱<span class="bLabel">Wall</span>
+    </button>
+    <button class="buildBtn" data-mode="floor" onclick="setBuildMode('floor')">
+      <span class="bKey">3</span>⬜<span class="bLabel">Floor</span>
+    </button>
+    <button class="buildBtn" data-mode="ramp" onclick="setBuildMode('ramp')">
+      <span class="bKey">4</span>📐<span class="bLabel">Ramp</span>
+    </button>
+    <button class="buildBtn" data-mode="edit" onclick="setBuildMode('edit')">
+      <span class="bKey">5</span>✏️<span class="bLabel">Edit</span>
+    </button>
   </div>
   <button id="settingsBtn">⚙️</button>
   <button id="leaderboardBtn" onclick="toggleLeaderboard()">🏆 Board</button>
@@ -1077,8 +1118,8 @@ function setBuildMode(mode){
   const tb=document.getElementById('modeToggleBtn');
   if(tb) tb.textContent = mode==='shoot' ? '🧱 Build' : '🔫 Shoot';
   // Flash toast
-  const labels={'shoot':'🔫 Shoot','wall':'🧱 Wall','floor':'🪵 Floor','ramp':'🔺 Ramp','edit':'✏️ Edit'};
-  showToast(labels[mode]||mode);
+  const labels={'shoot':'🔫 Shoot Mode','wall':'🧱 Wall','floor':'⬜ Floor','ramp':'📐 Ramp','edit':'✏️ Edit Mode'};
+  showToast(labels[mode]||mode, 800);
 }
 function quickToggleMode(){
   if(buildMode==='shoot') setBuildMode(lastBuildMode);
@@ -1890,6 +1931,6 @@ document.addEventListener('keydown', function(e) {
 });
 
 </script>
-<button id="modeToggleBtn" onclick="quickToggleMode()" style="display:none;position:fixed;bottom:90px;right:16px;z-index:50;width:64px;height:64px;border-radius:50%;background:rgba(0,212,255,0.18);border:2px solid #00d4ff;color:#fff;font-size:22px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(0,212,255,0.4);backdrop-filter:blur(6px);">🧱</button>
+
 </body>
 </html>
