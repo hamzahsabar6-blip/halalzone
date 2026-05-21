@@ -12,8 +12,8 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
-    #canvas { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-    #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+    #canvas { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+    #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: none; }
     #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; }
     #crosshair::before, #crosshair::after { content: ''; position: absolute; background: white; }
     #crosshair::before { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); }
@@ -1794,9 +1794,26 @@ function startFromServer() {
 
   initAudio();
 
-  // Make canvas fill screen
+  // Show HUD
+  const hud = document.getElementById('hud');
+  if(hud) hud.style.display = 'flex';
+
+  // Show toggle button
+  const mtb = document.getElementById('modeToggleBtn');
+  if(mtb) mtb.style.display = 'flex';
+
+  // Make canvas fill screen and sit behind HUD
   const cv = document.getElementById('canvas');
   cv.style.display = 'block';
+  cv.style.position = 'fixed';
+  cv.style.top = '0';
+  cv.style.left = '0';
+  cv.style.width = '100%';
+  cv.style.height = '100%';
+  cv.style.zIndex = '1';
+
+  // Ensure HUD is above canvas
+  if(hud) hud.style.zIndex = '10';
 
   // No pointer lock — works locally and online
   setupMouseLook();
