@@ -334,7 +334,7 @@
 
     <!-- Action buttons -->
     <div class="splash-buttons">
-      <button id="startBtn" onclick="openServerScreen()" ontouchend="event.preventDefault();openServerScreen();">▶&nbsp; Play Battle Royale &nbsp;<span style="font-size:11px;opacity:0.6;font-weight:normal">[SHIFT]</span></button>
+      <button id="startBtn" onclick="openServerScreen();">▶&nbsp; Play Battle Royale &nbsp;<span style="font-size:11px;opacity:0.6;font-weight:normal">[SHIFT]</span></button>
       <button id="splashSettingsBtn">⚙️ Settings</button>
     </div>
 
@@ -1712,6 +1712,7 @@ function openServerScreen() {
 
 function closeServerScreen() {
   document.getElementById('serverScreen').classList.remove('open');
+  window._gameStarted = false; // allow re-entry
 }
 
 function selectMode(mode) {
@@ -1777,6 +1778,8 @@ function simulatePingDetection() {
 }
 
 function startFromServer() {
+  if(window._gameStarted) return; // prevent double-call
+  window._gameStarted = true;
   if (selectedMode === 'online' || selectedMode === 'tournament') {
     showToast('🔜 Coming soon! Playing offline for now.');
     selectedMode = 'offline';
@@ -1915,27 +1918,32 @@ function goToServerScreen() {
 }
 
 // Start button — click and touch
+// Single clean handler — no doubles
+let _btnBusy = false;
+function _once(fn) {
+  if(_btnBusy) return;
+  _btnBusy = true;
+  fn();
+  setTimeout(()=>{ _btnBusy=false; }, 800);
+}
+
 const _startBtn = document.getElementById('startBtn');
 if(_startBtn) {
-  _startBtn.onclick = null; // remove any inline handler
-  ['click','touchend'].forEach(evt => {
-    _startBtn.addEventListener(evt, function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      goToServerScreen();
-    }, {passive:false});
+  _startBtn.onclick = null;
+  _startBtn.ontouchend = null;
+  _startBtn.addEventListener('pointerup', function(e){
+    e.preventDefault();
+    _once(goToServerScreen);
   });
 }
 
-// Play Offline button on server screen — click and touch
 const _svPlayBtn = document.getElementById('svPlayBtn');
 if(_svPlayBtn) {
-  ['click','touchend'].forEach(evt => {
-    _svPlayBtn.addEventListener(evt, function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      startFromServer();
-    }, {passive:false});
+  _svPlayBtn.onclick = null;
+  _svPlayBtn.ontouchend = null;
+  _svPlayBtn.addEventListener('pointerup', function(e){
+    e.preventDefault();
+    _once(startFromServer);
   });
 }
 
