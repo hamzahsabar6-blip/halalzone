@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a0f0a">
+<meta name="description" content="HalalZone – The halal browser game. Battle Royale & Football. No downloads. All platforms.">
+<title>HalalZone – Play Free</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--green:#00ff88;--cyan:#00d4ff;--gold:#ffd700;--purple:#a855f7;--dark:#0a0f0a;--card:#111a11;}
+body{background:var(--dark);color:white;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;border-bottom:1px solid #1a2a1a;}
+.nav-logo{font-size:20px;font-weight:900;letter-spacing:3px;color:var(--green);}
+.nav-links{display:flex;gap:20px;}
+.nav-links a{color:#888;text-decoration:none;font-size:13px;letter-spacing:1px;transition:color 0.2s;}
+.nav-links a:hover{color:var(--green);}
+.nav-play{background:var(--green);color:#000;padding:8px 18px;border-radius:20px;font-weight:700;font-size:13px;text-decoration:none;transition:transform 0.2s;}
+.nav-play:hover{transform:scale(1.05);}
+
+/* HERO */
+.hero{text-align:center;padding:80px 20px 60px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,255,136,0.08) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-block;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:5px 14px;border-radius:20px;font-size:11px;letter-spacing:2px;margin-bottom:20px;}
+.hero h1{font-size:clamp(42px,10vw,90px);font-weight:900;letter-spacing:6px;line-height:1;background:linear-gradient(135deg,#fff 0%,var(--green) 60%,#00aa55 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:clamp(13px,3vw,18px);color:#888;margin:16px 0 32px;letter-spacing:2px;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--green),#00aa55);color:#000;padding:14px 32px;border-radius:30px;font-weight:800;font-size:15px;text-decoration:none;letter-spacing:1px;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 0 24px rgba(0,255,136,0.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(0,255,136,0.5);}
+.btn-secondary{background:rgba(255,255,255,0.05);color:white;padding:14px 32px;border-radius:30px;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:1px;border:1px solid rgba(255,255,255,0.1);transition:all 0.2s;}
+.btn-secondary:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);}
+.hero-note{margin-top:20px;font-size:11px;color:#444;letter-spacing:1px;}
+
+/* PLATFORMS */
+.platforms{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:28px 20px;border-top:1px solid #111;border-bottom:1px solid #111;background:rgba(0,0,0,0.3);}
+.plat-pill{background:rgba(255,255,255,0.04);border:1px solid #1e2e1e;padding:8px 16px;border-radius:20px;font-size:12px;color:#888;letter-spacing:1px;}
+.plat-pill span{color:var(--green);margin-right:5px;}
+
+/* GAMES SECTION */
+.section{padding:60px 20px;max-width:1100px;margin:0 auto;}
+.section-label{text-align:center;font-size:11px;color:var(--green);letter-spacing:4px;margin-bottom:10px;}
+.section-title{text-align:center;font-size:clamp(22px,5vw,36px);font-weight:800;margin-bottom:40px;}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.game-card{background:var(--card);border:1px solid #1a2a1a;border-radius:20px;padding:28px;text-decoration:none;color:white;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;position:relative;overflow:hidden;}
+.game-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.3s;background:radial-gradient(ellipse at 50% 0%,var(--card-glow,rgba(0,255,136,0.08)),transparent 70%);}
+.game-card:hover{transform:translateY(-4px);border-color:var(--card-border,rgba(0,255,136,0.3));box-shadow:0 12px 40px var(--card-shadow,rgba(0,255,136,0.1));}
+.game-card:hover::before{opacity:1;}
+.game-icon{font-size:40px;margin-bottom:14px;display:block;}
+.game-title{font-size:20px;font-weight:800;margin-bottom:6px;}
+.game-desc{font-size:13px;color:#666;line-height:1.6;margin-bottom:18px;}
+.game-tag{display:inline-block;padding:5px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:1px;}
+.tag-live{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.2);}
+.tag-soon{background:rgba(255,255,255,0.04);color:#444;border:1px solid #222;}
+.game-card.coming{opacity:0.45;pointer-events:none;}
+
+/* FEATURES */
+.features{background:rgba(0,0,0,0.4);padding:60px 20px;border-top:1px solid #111;border-bottom:1px solid #111;}
+.features-inner{max-width:1000px;margin:0 auto;}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-top:40px;}
+.feat{background:rgba(255,255,255,0.02);border:1px solid #1a2a1a;border-radius:14px;padding:20px;}
+.feat-icon{font-size:24px;margin-bottom:10px;}
+.feat-title{font-size:14px;font-weight:700;margin-bottom:5px;}
+.feat-desc{font-size:12px;color:#555;line-height:1.6;}
+
+/* HOW TO PLAY */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:40px;}
+.step{text-align:center;padding:20px;}
+.step-num{width:40px;height:40px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-weight:800;font-size:15px;color:var(--green);}
+.step-title{font-size:14px;font-weight:700;margin-bottom:5px;}
+.step-desc{font-size:12px;color:#555;}
+
+/* CONTACT */
+.contact{max-width:600px;margin:0 auto;padding:60px 20px;}
+.contact-box{background:var(--card);border:1px solid #1a2a1a;border-radius:20px;padding:36px;}
+.contact-box h2{font-size:22px;font-weight:800;margin-bottom:6px;}
+.contact-box p{font-size:13px;color:#666;margin-bottom:24px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:11px;color:#666;letter-spacing:1px;margin-bottom:6px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid #1e2e1e;color:white;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;transition:border-color 0.2s;font-family:inherit;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green);background:rgba(0,255,136,0.03);}
+.form-group textarea{resize:vertical;min-height:100px;}
+.form-group select option{background:#111;}
+.submit-btn{width:100%;background:linear-gradient(135deg,var(--green),#00aa55);color:#000;border:none;padding:13px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;letter-spacing:1px;transition:transform 0.2s;}
+.submit-btn:hover{transform:scale(1.02);}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.form-success{display:none;text-align:center;padding:20px;color:var(--green);font-size:14px;}
+
+/* FOOTER */
+footer{text-align:center;padding:36px 20px;border-top:1px solid #111;color:#333;font-size:12px;letter-spacing:1px;}
+footer a{color:#444;text-decoration:none;}
+footer .footer-logo{font-size:18px;font-weight:900;color:var(--green);letter-spacing:4px;margin-bottom:10px;}
+
+/* MOBILE */
+@media(max-width:600px){
+  nav{padding:12px 16px;}
+  .nav-links{display:none;}
+  .hero{padding:50px 16px 40px;}
+  .section{padding:40px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🌙 HALALZONE</div>
+  <div class="nav-links">
+    <a href="#games">Games</a>
+    <a href="#features">Features</a>
+    <a href="#how">How to Play</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a class="nav-play" href="https://base44.app/api/apps/6a0e8048c62b8f2c685abb2c/files/mp/public/6a0e8048c62b8f2c685abb2c/de500fb70_index.html" target="_blank">▶ Play Free</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🌙 HALAL · FREE · NO DOWNLOAD</div>
+  <h1>HALALZONE</h1>
+  <p class="hero-sub">Build · Fight · Win · All Platforms</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="https://base44.app/api/apps/6a0e8048c62b8f2c685abb2c/files/mp/public/6a0e8048c62b8f2c685abb2c/de500fb70_index.html" target="_blank">▶ Play Battle Royale</a>
+    <a class="btn-secondary" href="https://base44.app/api/apps/6a0e8048c62b8f2c685abb2c/files/mp/public/6a0e8048c62b8f2c685abb2c/eb10e0869_football.html" target="_blank">⚽ Play Football</a>
+  </div>
+  <p class="hero-note">No sign-up · No download · Works in any browser</p>
+</section>
+
+<!-- PLATFORMS -->
+<div class="platforms">
+  <div class="plat-pill"><span>🖥️</span>Windows PC</div>
+  <div class="plat-pill"><span>🍎</span>Mac</div>
+  <div class="plat-pill"><span>📱</span>iPhone / iOS</div>
+  <div class="plat-pill"><span>🤖</span>Android</div>
+  <div class="plat-pill"><span>📟</span>iPad / Tablet</div>
+  <div class="plat-pill"><span>🌐</span>Any Browser</div>
+  <div class="plat-pill"><span>📴</span>Offline Mode</div>
+</div>
+
+<!-- GAMES -->
+<section class="section" id="games">
+  <div class="section-label">GAME MODES</div>
+  <h2 class="section-title">Choose Your Game</h2>
+  <div class="games-grid">
+
+    <a class="game-card" href="https://base44.app/api/apps/6a0e8048c62b8f2c685abb2c/files/mp/public/6a0e8048c62b8f2c685abb2c/de500fb70_index.html" target="_blank" style="--card-border:rgba(0,212,255,0.3);--card-shadow:rgba(0,212,255,0.1);--card-glow:rgba(0,212,255,0.06);">
+      <span class="game-icon">🔫</span>
+      <div class="game-title">Battle Royale</div>
+      <div class="game-desc">100-player drop zone. Build cover, find weapons, survive the storm. Last one standing wins.</div>
+      <span class="game-tag tag-live">▶ PLAY NOW</span>
+    </a>
+
+    <a class="game-card" href="https://base44.app/api/apps/6a0e8048c62b8f2c685abb2c/files/mp/public/6a0e8048c62b8f2c685abb2c/eb10e0869_football.html" target="_blank" style="--card-border:rgba(0,255,136,0.3);--card-shadow:rgba(0,255,136,0.1);--card-glow:rgba(0,255,136,0.06);">
+      <span class="game-icon">⚽</span>
+      <div class="game-title">Football</div>
+      <div class="game-desc">3D football in your browser. Pick your nation, choose difficulty, and take on the AI.</div>
+      <span class="game-tag tag-live">▶ PLAY NOW</span>
+    </a>
+
+    <div class="game-card coming" style="--card-border:rgba(168,85,247,0.3);">
+      <span class="game-icon">🏎️</span>
+      <div class="game-title">Racing</div>
+      <div class="game-desc">High-speed open world racing. Coming soon.</div>
+      <span class="game-tag tag-soon">COMING SOON</span>
+    </div>
+
+    <div class="game-card coming" style="--card-border:rgba(255,215,0,0.3);">
+      <span class="game-icon">🏆</span>
+      <div class="game-title">Tournament</div>
+      <div class="game-desc">Skill-based ranked tournaments. Compete for the top spot.</div>
+      <span class="game-tag tag-soon">COMING SOON</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="section-label">WHY HALALZONE</div>
+    <h2 class="section-title">Built Different</h2>
+    <div class="features-grid">
+      <div class="feat"><div class="feat-icon">🌙</div><div class="feat-title">Halal Audio</div><div class="feat-desc">Switch between Music, Nasheeds, or Quran recitation — or mute entirely.</div></div>
+      <div class="feat"><div class="feat-icon">📴</div><div class="feat-title">Works Offline</div><div class="feat-desc">Full offline mode with 100 AI bots. No internet? No problem.</div></div>
+      <div class="feat"><div class="feat-icon">🌐</div><div class="feat-title">Browser Native</div><div class="feat-desc">No download, no install, no account. Just open and play.</div></div>
+      <div class="feat"><div class="feat-icon">📱</div><div class="feat-title">All Platforms</div><div class="feat-desc">PC, Mac, iPhone, Android, Tablet — same experience everywhere.</div></div>
+      <div class="feat"><div class="feat-icon">🧱</div><div class="feat-title">Build & Shoot</div><div class="feat-desc">Fortnite-style building. Use materials to build cover or reload your gun.</div></div>
+      <div class="feat"><div class="feat-icon">🏆</div><div class="feat-title">Skill Based</div><div class="feat-desc">No gambling, no loot boxes. Pure skill. Tournaments coming soon.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO PLAY -->
+<section class="section" id="how">
+  <div class="section-label">HOW TO PLAY</div>
+  <h2 class="section-title">Jump In Fast</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-title">Open the Link</div><div class="step-desc">Tap Play on any device. No download or login needed.</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-num" style="display:none"></div><div class="step-num">2</div><div class="step-title">Pick Your Mode</div><div class="step-desc">Battle Royale or Football. More modes coming soon.</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-title">Set Audio</div><div class="step-desc">Choose Music, Nasheed, Quran, or Mute before you play.</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-title">Play & Win</div><div class="step-desc">Drop in, build, shoot, survive. Be the last one standing.</div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact">
+    <div class="contact-box">
+      <h2>🛠️ Report a Problem</h2>
+      <p>Found a bug? Game not loading? Let us know and we'll fix it fast.</p>
+
+      <div id="contactForm">
+        <div class="form-group">
+          <label>YOUR NAME</label>
+          <input type="text" id="cName" placeholder="e.g. Hamzah" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label>EMAIL (so we can reply)</label>
+          <input type="email" id="cEmail" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label>DEVICE / PLATFORM</label>
+          <select id="cDevice">
+            <option value="">Select your device...</option>
+            <option>Windows PC</option>
+            <option>Mac</option>
+            <option>iPhone / iOS</option>
+            <option>Android Phone</option>
+            <option>iPad / Android Tablet</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>WHICH GAME</label>
+          <select id="cGame">
+            <option value="">Select game...</option>
+            <option>Battle Royale</option>
+            <option>Football</option>
+            <option>Both / Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>DESCRIBE THE PROBLEM</label>
+          <textarea id="cMsg" placeholder="Tell us what happened — what you were doing when the issue occurred..."></textarea>
+        </div>
+        <button class="submit-btn" onclick="submitContact()">Send Report →</button>
+      </div>
+
+      <div class="form-success" id="formSuccess">
+        ✅ Got it! We'll look into this and get back to you soon. جزاك الله خيرًا
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🌙 HALALZONE</div>
+  <p>Free · Halal · Skill-Based · No Gambling · All Platforms</p>
+  <br>
+  <p><a href="https://base44.app/api/apps/6a0e8048c62b8f2c685abb2c/files/mp/public/6a0e8048c62b8f2c685abb2c/de500fb70_index.html" target="_blank">Battle Royale</a> &nbsp;·&nbsp; <a href="https://base44.app/api/apps/6a0e8048c62b8f2c685abb2c/files/mp/public/6a0e8048c62b8f2c685abb2c/eb10e0869_football.html" target="_blank">Football</a> &nbsp;·&nbsp; <a href="#contact">Contact</a></p>
+</footer>
+
+<script>
+async function submitContact(){
+  const name=document.getElementById('cName').value.trim();
+  const email=document.getElementById('cEmail').value.trim();
+  const msg=document.getElementById('cMsg').value.trim();
+  const device=document.getElementById('cDevice').value;
+  const game=document.getElementById('cGame').value;
+  if(!name||!email||!msg){alert('Please fill in your name, email and describe the problem.');return;}
+  const btn=document.querySelector('.submit-btn');
+  btn.disabled=true;btn.textContent='Sending... ⏳';
+  try{
+    const res=await fetch('https://None.base44.app/functions/sendBugReport',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,email,device,game,msg})
+    });
+    if(res.ok){
+      document.getElementById('contactForm').style.display='none';
+      document.getElementById('formSuccess').style.display='block';
+    } else {
+      btn.disabled=false;btn.textContent='Send Report →';
+      alert('Something went wrong. Please try again.');
+    }
+  }catch(e){
+    btn.disabled=false;btn.textContent='Send Report →';
+    alert('Connection error. Please try again.');
+  }
+}
+</script>
+</body>
+</html>
