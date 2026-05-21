@@ -1834,57 +1834,45 @@ if ('serviceWorker' in navigator) {
   }).catch(() => {}); // Silently fail if blocked by browser policy
 }
 
-// Override openServerScreen on start button
-const startBtn = document.getElementById('startBtn');
-if(startBtn){
-  startBtn.onclick = null;
-  function handleStart(e){
-    e.preventDefault();
-    e.stopPropagation();
-    try { openServerScreen(); } catch(err) { startFromServer(); }
-  }
-  startBtn.addEventListener('click', handleStart);
-  startBtn.addEventListener('touchend', handleStart, {passive:false});
+// ===== CLEAN ENTRY HANDLER =====
+// Single source of truth for all play button interactions
+
+function goToServerScreen() {
+  document.getElementById('serverScreen').classList.add('open');
+  simulatePingDetection && simulatePingDetection();
 }
 
-// Fix all play buttons — add touchend to every button that calls startFromServer or openServerScreen
-document.querySelectorAll('button').forEach(btn => {
-  if(btn.getAttribute('onclick') && (btn.getAttribute('onclick').includes('startFromServer') || btn.getAttribute('onclick').includes('openServerScreen'))) {
-    btn.addEventListener('touchend', function(e){
+// Start button — click and touch
+const _startBtn = document.getElementById('startBtn');
+if(_startBtn) {
+  _startBtn.onclick = null; // remove any inline handler
+  ['click','touchend'].forEach(evt => {
+    _startBtn.addEventListener(evt, function(e) {
       e.preventDefault();
-      try { startFromServer(); } catch(err) {}
+      e.stopPropagation();
+      goToServerScreen();
     }, {passive:false});
-  }
-});
+  });
+}
 
-// Shift key starts the game from splash or server screen
+// Play Offline button on server screen — click and touch
+const _svPlayBtn = document.getElementById('svPlayBtn');
+if(_svPlayBtn) {
+  ['click','touchend'].forEach(evt => {
+    _svPlayBtn.addEventListener(evt, function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      startFromServer();
+    }, {passive:false});
+  });
+}
+
+// Shift key: splash -> server screen, server screen -> game
 document.addEventListener('keydown', function(e) {
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-    const splash = document.getElementById('splash');
-    const serverScreen = document.getElementById('serverScreen');
-    // If splash is visible, open the server screen
-    if (splash && splash.style.display !== 'none') {
-      openServerScreen();
-      return;
-    }
-    // If server screen is open, start the game
-    if (serverScreen && serverScreen.classList.contains('open')) {
-      startFromServer();
-      return;
-    }
-  }
-});
-
-// Fallback: if server screen doesn't open within 200ms, just start directly
-document.getElementById('startBtn').addEventListener('click', function() {
-  setTimeout(() => {
-    const ss = document.getElementById('serverScreen');
-    const splash = document.getElementById('splash');
-    // If serverScreen isn't open AND splash still visible, start directly
-    if (!ss.classList.contains('open') && splash.style.display !== 'none') {
-      startFromServer();
-    }
-  }, 200);
+  if (e.code !== 'ShiftLeft' && e.code !== 'ShiftRight') return;
+  const ss = document.getElementById('serverScreen');
+  if (ss && ss.classList.contains('open')) { startFromServer(); return; }
+  goToServerScreen();
 });
 
 </script>
