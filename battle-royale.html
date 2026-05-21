@@ -334,7 +334,7 @@
 
     <!-- Action buttons -->
     <div class="splash-buttons">
-      <button id="startBtn" onclick="openServerScreen();">▶&nbsp; Play Battle Royale &nbsp;<span style="font-size:11px;opacity:0.6;font-weight:normal">[SHIFT]</span></button>
+      <button id="startBtn">▶&nbsp; Play Battle Royale &nbsp;<span style="font-size:11px;opacity:0.6;font-weight:normal">[SHIFT]</span></button>
       <button id="splashSettingsBtn">⚙️ Settings</button>
     </div>
 
@@ -1918,35 +1918,6 @@ function goToServerScreen() {
 }
 
 // Start button — click and touch
-// Single clean handler — no doubles
-let _btnBusy = false;
-function _once(fn) {
-  if(_btnBusy) return;
-  _btnBusy = true;
-  fn();
-  setTimeout(()=>{ _btnBusy=false; }, 800);
-}
-
-const _startBtn = document.getElementById('startBtn');
-if(_startBtn) {
-  _startBtn.onclick = null;
-  _startBtn.ontouchend = null;
-  _startBtn.addEventListener('pointerup', function(e){
-    e.preventDefault();
-    _once(goToServerScreen);
-  });
-}
-
-const _svPlayBtn = document.getElementById('svPlayBtn');
-if(_svPlayBtn) {
-  _svPlayBtn.onclick = null;
-  _svPlayBtn.ontouchend = null;
-  _svPlayBtn.addEventListener('pointerup', function(e){
-    e.preventDefault();
-    _once(startFromServer);
-  });
-}
-
 // Shift key: splash -> server screen, server screen -> game
 document.addEventListener('keydown', function(e) {
   if (e.code !== 'ShiftLeft' && e.code !== 'ShiftRight') return;
@@ -1955,6 +1926,32 @@ document.addEventListener('keydown', function(e) {
   goToServerScreen();
 });
 
+
+// ===== BUTTON HANDLERS (single, clean) =====
+(function(){
+  var busy = false;
+  function once(fn){ if(busy)return; busy=true; fn(); setTimeout(function(){busy=false;},800); }
+
+  var sb = document.getElementById('startBtn');
+  if(sb){
+    ['click','touchend'].forEach(function(ev){
+      sb.addEventListener(ev, function(e){
+        e.preventDefault(); e.stopPropagation();
+        once(openServerScreen);
+      }, {passive:false});
+    });
+  }
+
+  var pb = document.getElementById('svPlayBtn');
+  if(pb){
+    ['click','touchend'].forEach(function(ev){
+      pb.addEventListener(ev, function(e){
+        e.preventDefault(); e.stopPropagation();
+        once(startFromServer);
+      }, {passive:false});
+    });
+  }
+})();
 </script>
 
 </body>
