@@ -882,6 +882,7 @@ function spawnEnemy(){
 
 // ===== INIT =====
 function init(){
+  if(window._gameInitDone){return;} window._gameInitDone=true;
   scene=new THREE.Scene();
   scene.background=new THREE.Color(0x87ceeb);
   scene.fog=new THREE.Fog(0x87ceeb,80,280);
@@ -1355,7 +1356,7 @@ document.getElementById('startBtn').addEventListener('click_disabled',()=>{
   updateHUD();
 });
 
-init();
+// init() is called from startFromServer() — not on page load
 
 // ===== LEADERBOARD =====
 // Generate 99 AI player names
@@ -1622,10 +1623,15 @@ function startFromServer() {
 
   initAudio();
 
-  // No pointer lock — works locally and online
-  if (isMobile) initTouchControls();
-  setupMouseLook();
+  // Make canvas fill screen
+  const cv = document.getElementById('canvas');
+  cv.style.display = 'block';
+  cv.width = window.innerWidth;
+  cv.height = window.innerHeight;
 
+  // No pointer lock — works locally and online
+  setupMouseLook();
+  if(isMobile) initTouchControls();
   init();  // initialize 3D scene, terrain, bots, and start animate loop
   gameRunning = true;
   updateHUD();
