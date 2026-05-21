@@ -239,6 +239,12 @@
     .lb-close-btn { flex: 1; background: #ffd700; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
     .lb-resume-btn { flex: 1; background: transparent; border: 1px solid #444; color: #aaa; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
 
+
+    .kb-row { display:contents; }
+    .kb-label { font-size:12px; color:#aaa; display:flex; align-items:center; }
+    .kb-btn { background:rgba(255,255,255,0.06); border:1px solid #2d3748; color:white; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:1px; transition:all 0.15s; text-align:center; }
+    .kb-btn:hover { border-color:#00d4ff; background:rgba(0,212,255,0.1); }
+    .kb-btn.listening { border-color:#ffd700; background:rgba(255,215,0,0.15); color:#ffd700; animation:pulse 0.8s infinite; }
   </style>
 <script>function showToast(m){const e=document.getElementById("toast");if(e){e.textContent=m;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,2000);}}</script>
 </head>
@@ -441,6 +447,12 @@
         <div class="setting-label">Auto-Reload</div>
         <div class="toggle-group"><button class="tog-btn active" id="autoReloadOnBtn">On</button><button class="tog-btn" id="autoReloadOffBtn">Off</button></div>
       </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>⌨️ Keybinds</h3>
+      <div id="keybindList" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;"></div>
+      <div style="margin-top:12px;font-size:11px;color:#555;letter-spacing:1px;">Click any key button to remap it. Press the new key to assign.</div>
     </div>
     <div class="settings-footer">
       <button class="btn-primary" id="closeSettingsBtn">✅ Save & Close</button>
@@ -1039,11 +1051,22 @@ function onMouseMove(e){
 }
 
 function onKey(e){
-  const map={Digit1:'shoot',Digit2:'wall',Digit3:'floor',Digit4:'ramp',Digit5:'edit'};
-  if(map[e.code])setBuildMode(map[e.code]);
-  if(e.code==='KeyR')reload();
-  if(e.code==='KeyL'||e.code==='Tab'){e.preventDefault();openLeaderboardModal();}
-  if(e.code==='Escape'){if(document.getElementById('settingsPanel').classList.contains('open')){closeSettings();return;}if(gameRunning)pauseGame();else if(isPaused)resumeGame();}
+  const kb=window._kb||{};
+  // Dynamic mode switching
+  const modeMap={
+    [kb['Mode: Shoot']||'Digit1']:'shoot',
+    [kb['Mode: Wall']||'Digit2']:'wall',
+    [kb['Mode: Floor']||'Digit3']:'floor',
+    [kb['Mode: Ramp']||'Digit4']:'ramp',
+    [kb['Mode: Edit']||'Digit5']:'edit'
+  };
+  if(modeMap[e.code])setBuildMode(modeMap[e.code]);
+  if(e.code===(kb['Reload']||'KeyR'))reload();
+  if(e.code===(kb['Leaderboard']||'Tab')||e.code==='KeyL'){e.preventDefault();openLeaderboardModal();}
+  if(e.code===(kb['Pause']||'Escape')){
+    if(document.getElementById('settingsPanel').classList.contains('open')){closeSettings();return;}
+    if(gameRunning)pauseGame();else if(isPaused)resumeGame();
+  }
 }
 
 function setBuildMode(mode){buildMode=mode;document.querySelectorAll('.buildBtn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));}
@@ -1227,12 +1250,15 @@ function update(dt){
   const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
   const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
   const move=new THREE.Vector3();
-  if(keys['KeyW'])move.add(forward);if(keys['KeyS'])move.sub(forward);
-  if(keys['KeyA'])move.sub(right);if(keys['KeyD'])move.add(right);
+  const kb=window._kb||{};
+  if(keys[kb['Move Forward']||'KeyW'])move.add(forward);
+  if(keys[kb['Move Backward']||'KeyS'])move.sub(forward);
+  if(keys[kb['Move Left']||'KeyA'])move.sub(right);
+  if(keys[kb['Move Right']||'KeyD'])move.add(right);
   if(joystickActive){move.add(forward.clone().multiplyScalar(-joystickDelta.y));move.add(right.clone().multiplyScalar(joystickDelta.x));}
   if(move.length()>0)move.normalize();
   velocity.x=move.x*MOVE_SPEED;velocity.z=move.z*MOVE_SPEED;
-  if(keys['Space']&&isGrounded){velocity.y=JUMP_FORCE;isGrounded=false;}
+  if(keys[kb['Jump']||'Space']&&isGrounded){velocity.y=JUMP_FORCE;isGrounded=false;}
   velocity.y+=GRAVITY*dt;
   camera.position.addScaledVector(velocity,dt);
   if(camera.position.y<PLAYER_HEIGHT){camera.position.y=PLAYER_HEIGHT;velocity.y=0;isGrounded=true;}
@@ -1345,6 +1371,81 @@ function initSettingsUI(){
   document.getElementById('resumeBtn').addEventListener('click',resumeGame);
   document.getElementById('quitBtn').addEventListener('click',()=>location.reload());
   document.getElementById('restartBtn').addEventListener('click',()=>location.reload());
+
+  // ===== KEYBINDS =====
+  const defaultKeybinds = {
+    'Move Forward':   'KeyW',
+    'Move Backward':  'KeyS',
+    'Move Left':      'KeyA',
+    'Move Right':     'KeyD',
+    'Jump':           'Space',
+    'Reload':         'KeyR',
+    'Shoot / Build':  'Mouse0',
+    'Mode: Shoot':    'Digit1',
+    'Mode: Wall':     'Digit2',
+    'Mode: Floor':    'Digit3',
+    'Mode: Ramp':     'Digit4',
+    'Mode: Edit':     'Digit5',
+    'Leaderboard':    'Tab',
+    'Pause':          'Escape',
+  };
+  if(!window.keybinds) window.keybinds = Object.assign({}, defaultKeybinds);
+
+  function prettyKey(code) {
+    const map = {Space:'SPACE',Tab:'TAB',Escape:'ESC',Mouse0:'LMB',ShiftLeft:'L-SHIFT',ShiftRight:'R-SHIFT',ControlLeft:'L-CTRL',ControlRight:'R-CTRL',AltLeft:'L-ALT'};
+    if(map[code]) return map[code];
+    if(code.startsWith('Key')) return code.slice(3);
+    if(code.startsWith('Digit')) return code.slice(5);
+    return code;
+  }
+
+  let listeningBtn = null;
+  let listeningAction = null;
+
+  function buildKeybindList() {
+    const list = document.getElementById('keybindList');
+    if(!list) return;
+    list.innerHTML = '';
+    Object.entries(window.keybinds).forEach(([action, code]) => {
+      const label = document.createElement('div');
+      label.className = 'kb-label';
+      label.textContent = action;
+      const btn = document.createElement('button');
+      btn.className = 'kb-btn';
+      btn.textContent = prettyKey(code);
+      btn.addEventListener('click', () => {
+        if(listeningBtn) { listeningBtn.classList.remove('listening'); listeningBtn.textContent = prettyKey(window.keybinds[listeningAction]); }
+        listeningBtn = btn;
+        listeningAction = action;
+        btn.classList.add('listening');
+        btn.textContent = '...';
+      });
+      list.appendChild(label);
+      list.appendChild(btn);
+    });
+  }
+
+  // Listen for key press to assign new keybind
+  document.addEventListener('keydown', function(e) {
+    if(!listeningBtn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    window.keybinds[listeningAction] = e.code;
+    listeningBtn.textContent = prettyKey(e.code);
+    listeningBtn.classList.remove('listening');
+    listeningBtn = null;
+    listeningAction = null;
+    applyKeybinds();
+  });
+
+  function applyKeybinds() {
+    // Remap movement keys dynamically from window.keybinds
+    window._kb = window.keybinds;
+  }
+
+  buildKeybindList();
+  applyKeybinds();
+
 }
 
 function tog(onId,offId,setter){
