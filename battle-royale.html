@@ -303,7 +303,7 @@
 
     <!-- Action buttons -->
     <div class="splash-buttons">
-      <button id="startBtn" onclick="openServerScreen()">▶&nbsp; Play Battle Royale &nbsp;<span style="font-size:11px;opacity:0.6;font-weight:normal">[SHIFT]</span></button>
+      <button id="startBtn" onclick="openServerScreen()" ontouchend="event.preventDefault();openServerScreen();">▶&nbsp; Play Battle Royale &nbsp;<span style="font-size:11px;opacity:0.6;font-weight:normal">[SHIFT]</span></button>
       <button id="splashSettingsBtn">⚙️ Settings</button>
     </div>
 
@@ -607,6 +607,7 @@ let settings = {
 let scene, camera, renderer, clock;
 let player = { hp:100, mats:500, ammo:30, maxAmmo:30, matCostReload:15 }; // matCostReload = materials spent per reload
 let buildMode = 'shoot';
+let lastBuildMode = 'wall'; // remembers last build mode for quick toggle
 let keys = {};
 let yaw = 0, pitch = 0;
 let velocity = new THREE.Vector3();
@@ -976,10 +977,7 @@ function init(){
   window.addEventListener('resize',onResize);
   window.addEventListener('keydown',e=>{keys[e.code]=true;onKey(e);});
 
-// Mobile: ensure ALL buttons work with touch
-document.querySelectorAll('#splash button, #serverScreen button').forEach(btn=>{
-  btn.addEventListener('touchstart', function(e){ e.preventDefault(); this.click(); }, {passive:false});
-});
+// Mobile touch handled via pointer events
   window.addEventListener('keyup',e=>{keys[e.code]=false;});
   if(!isMobile){
     document.addEventListener('mousemove',onMouseMove);
@@ -1062,6 +1060,8 @@ function onKey(e){
   };
   if(modeMap[e.code])setBuildMode(modeMap[e.code]);
   if(e.code===(kb['Reload']||'KeyR'))reload();
+  // Q = quick toggle between shoot and last build mode
+  if(e.code==='KeyQ') quickToggleMode();
   if(e.code===(kb['Leaderboard']||'Tab')||e.code==='KeyL'){e.preventDefault();openLeaderboardModal();}
   if(e.code===(kb['Pause']||'Escape')){
     if(document.getElementById('settingsPanel').classList.contains('open')){closeSettings();return;}
@@ -1069,7 +1069,21 @@ function onKey(e){
   }
 }
 
-function setBuildMode(mode){buildMode=mode;document.querySelectorAll('.buildBtn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));}
+function setBuildMode(mode){
+  if(mode!=='shoot') lastBuildMode=mode;
+  buildMode=mode;
+  document.querySelectorAll('.buildBtn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  // Update toggle button label
+  const tb=document.getElementById('modeToggleBtn');
+  if(tb) tb.textContent = mode==='shoot' ? '🧱 Build' : '🔫 Shoot';
+  // Flash toast
+  const labels={'shoot':'🔫 Shoot','wall':'🧱 Wall','floor':'🪵 Floor','ramp':'🔺 Ramp','edit':'✏️ Edit'};
+  showToast(labels[mode]||mode);
+}
+function quickToggleMode(){
+  if(buildMode==='shoot') setBuildMode(lastBuildMode);
+  else setBuildMode('shoot');
+}
 function reload(){
   if(player.ammo>=player.maxAmmo){showToast('🔫 Already full!');return;}
   const needed=player.maxAmmo-player.ammo;
@@ -1876,5 +1890,6 @@ document.addEventListener('keydown', function(e) {
 });
 
 </script>
+<button id="modeToggleBtn" onclick="quickToggleMode()" style="display:none;position:fixed;bottom:90px;right:16px;z-index:50;width:64px;height:64px;border-radius:50%;background:rgba(0,212,255,0.18);border:2px solid #00d4ff;color:#fff;font-size:22px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(0,212,255,0.4);backdrop-filter:blur(6px);">🧱</button>
 </body>
 </html>
